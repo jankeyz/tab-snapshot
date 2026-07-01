@@ -1,0 +1,484 @@
+/* popup.css — Tab Snapshot
+   Slate & Amber identity, a 4px spacing scale, a clear type hierarchy, and
+   light + dark themes. Every color is a CSS variable, so the whole look can be
+   retuned by editing :root. */
+
+/* ============================ Design tokens ============================== */
+:root {
+  /* Brand — Slate & Amber (warm / editorial) */
+  --primary:       #b45309;  /* amber-700 (bronze) — primary actions */
+  --primary-hover: #92400e;  /* amber-800 */
+  --primary-soft:  #fdf0e1;  /* faint amber for focus rings / tints */
+  --accent:        #f59e0b;  /* amber-500 — highlights, the mark */
+  --on-primary:    #ffffff;  /* text/icon color on top of --primary */
+
+  /* Surfaces & lines (warm neutrals) */
+  --bg:            #ffffff;
+  --card:          #ffffff;
+  --card-hover:    #faf8f4;
+  --panel:         #f8f7f4;
+  --border:        #e7e5e0;
+  --border-strong: #d6d3cc;
+
+  /* Text (warm stone) */
+  --text:  #1c1917;
+  --muted: #78716c;
+
+  /* Feedback (danger stays red so it's distinct from the amber brand) */
+  --danger:       #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft:  #fef2f2;
+  --on-danger:    #ffffff;
+
+  /* Spacing scale (multiples of 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* Shape & depth */
+  --radius:    10px;
+  --radius-sm: 7px;
+  --shadow: 0 1px 2px rgba(17, 12, 46, 0.06),
+            0 6px 16px rgba(17, 12, 46, 0.08);
+}
+
+/* Dark theme: only the variables change; every rule below works in both. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary:       #f59e0b;  /* bright amber pops on a dark background */
+    --primary-hover: #fbbf24;
+    --primary-soft:  #3a2e1a;
+    --accent:        #fbbf24;
+    --on-primary:    #1c1917;  /* DARK text on the bright amber button */
+
+    --bg:            #1a1714;
+    --card:          #231f1a;
+    --card-hover:    #2b2620;
+    --panel:         #231f1a;
+    --border:        #38332b;
+    --border-strong: #4a4339;
+
+    --text:  #f5f2ec;
+    --muted: #a89f93;
+
+    --danger:       #f87171;
+    --danger-hover: #fca5a5;
+    --danger-soft:  #2a1c1a;
+    --on-danger:    #1c1917;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45),
+              0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ================================ Base ================================== */
+* { box-sizing: border-box; }
+
+/* Make the `hidden` attribute ALWAYS win, even on elements that also set a
+   display value (flex/grid). Without this an author `display:` rule silently
+   defeats `hidden`. */
+[hidden] { display: none !important; }
+
+body {
+  width: 360px;
+  margin: 0;
+  padding: var(--space-4);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =============================== Header ================================= */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.app-mark { display: inline-flex; flex: none; }
+.app-mark .mark-back  { fill: var(--accent);  opacity: 0.45; }
+.app-mark .mark-front { fill: var(--primary); }
+.app-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ============================== Save form =============================== */
+.save-form { display: flex; gap: var(--space-2); }
+.text-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+}
+.text-input::placeholder { color: var(--muted); }
+.text-input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* ============================== Buttons ================================= */
+.btn {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-hover); }
+
+/* ============================= Status line ============================== */
+.status {
+  min-height: 16px;
+  margin: var(--space-2) 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.status.error { color: var(--danger); }
+
+/* ============================ Sessions list ============================= */
+.sessions { margin-top: var(--space-4); }
+.sessions-heading {
+  margin: 0 0 var(--space-2);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+/* Search box (shown only when 5+ sessions exist) */
+#search-wrap { margin-bottom: var(--space-2); }
+.search-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+}
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ============================= Session card ============================= */
+.session-item {
+  position: relative;                 /* positioning context for the ✕ */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  transition: background 0.12s ease, border-color 0.12s ease,
+              box-shadow 0.12s ease;
+}
+.session-item:hover {
+  background: var(--card-hover);
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+}
+
+/* Card body — clicking it toggles expand/collapse. A <div>, so it can hold
+   the Restore/Update/rename/delete buttons inside it. */
+.session-content {
+  padding: var(--space-3);
+  padding-right: var(--space-6);      /* keep the name clear of the ✕ */
+  border-radius: var(--radius);
+}
+.session-item.is-expandable .session-content { cursor: pointer; }
+
+.session-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.session-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Inline rename field (replaces .session-name while editing). */
+.rename-input {
+  width: 100%;
+  padding: 2px 6px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg);
+}
+.rename-input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* Collapsed favicon preview strip. */
+.session-favicons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  margin-top: var(--space-3);
+}
+.favicon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: var(--panel);
+  flex: none;
+}
+.favicon-more {
+  margin-left: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.session-item.is-expanded .favicon-more { display: none; }
+
+/* Actions row: expand indicator on the left, button cluster on the right. */
+.session-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+.session-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Expand/collapse button: quiet text + a chevron that flips 180° when open. */
+.expand-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.expand-indicator:hover { color: var(--text); background: var(--panel); }
+.expand-indicator:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.expand-indicator .chevron-expand { transition: transform 0.2s ease; }
+.session-item.is-expanded .expand-indicator .chevron-expand { transform: rotate(180deg); }
+
+/* Icon-only button (rename pencil). */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.btn-icon:hover { color: var(--primary); background: var(--panel); }
+.btn-icon:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+/* Small text buttons: Update (secondary) and Restore (primary outline). */
+.btn-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-mini:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.btn-update { background: var(--panel); color: var(--text); border-color: var(--border); }
+.btn-update:hover { background: var(--border); }
+.btn-restore { background: transparent; color: var(--primary); border-color: var(--primary); }
+.btn-restore:hover { background: var(--primary); color: var(--on-primary); }
+.btn-restore .chevron { transition: transform 0.12s ease; }
+.btn-restore:hover .chevron { transform: translateX(2px); }
+
+/* ---- Expandable tab list ------------------------------------------------
+   The CSS grid `0fr → 1fr` trick animates height from 0 to "auto" (which a
+   plain `height:auto` cannot transition). The <ul> inside has overflow:hidden
+   so the rows are clipped while the block opens. */
+.tab-list-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+.session-item.is-expanded .tab-list-wrap { grid-template-rows: 1fr; }
+.tab-list {
+  overflow: hidden;
+  min-height: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  padding-top: var(--space-2);        /* clipped to 0 while collapsed */
+}
+.tab-item { min-width: 0; }
+.tab-open {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.tab-open:hover { background: var(--panel); color: var(--primary); }
+.tab-open:focus-visible { outline: 2px solid var(--primary); outline-offset: -1px; }
+.tab-open .favicon { flex: none; }
+.tab-title {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =============================== Delete ✕ =============================== */
+.btn-delete {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.btn-delete:hover { color: var(--danger); background: var(--danger-soft); }
+.btn-delete:focus-visible { outline: 2px solid var(--danger); outline-offset: 1px; }
+
+/* ====================== Inline delete confirmation ===================== */
+.confirm-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 var(--space-3) var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.confirm-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+.btn-sm { padding: var(--space-1) var(--space-3); font-size: 12px; }
+.btn-cancel { background: var(--panel); color: var(--text); }
+.btn-cancel:hover { background: var(--border); }
+.btn-danger { background: var(--danger); color: var(--on-danger); }
+.btn-danger:hover { background: var(--danger-hover); }
+
+/* ============================= Empty states ============================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+}
+.empty-icon { color: var(--border-strong); margin-bottom: var(--space-2); }
+.empty-title { margin: 0; font-size: 13px; font-weight: 600; color: var(--text); }
+.empty-sub { margin: var(--space-1) 0 0; font-size: 12px; color: var(--muted); }
+
+.no-matches {
+  margin: 0;
+  padding: var(--space-4) 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ======================= Footer: export / import ======================= */
+.app-footer {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.btn-ghost {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-ghost:hover { background: var(--border); }
+.btn-ghost:disabled { opacity: 0.5; cursor: default; }
+.btn-ghost:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
