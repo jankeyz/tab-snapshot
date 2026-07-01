@@ -9,8 +9,12 @@
   --primary:       #b45309;  /* amber-700 (bronze) — primary actions */
   --primary-hover: #92400e;  /* amber-800 */
   --primary-soft:  #fdf0e1;  /* faint amber for focus rings / tints */
-  --accent:        #f59e0b;  /* amber-500 — highlights, the mark */
   --on-primary:    #ffffff;  /* text/icon color on top of --primary */
+
+  /* Brand-mark colors. These match the static toolbar icon PNGs, which can't
+     follow the theme — so they are deliberately NOT overridden in dark mode. */
+  --mark-tile: #f59e0b;  /* amber tile */
+  --mark-ink:  #1c1917;  /* slate frame */
 
   /* Surfaces & lines (warm neutrals) */
   --bg:            #ffffff;
@@ -51,7 +55,6 @@
     --primary:       #f59e0b;  /* bright amber pops on a dark background */
     --primary-hover: #fbbf24;
     --primary-soft:  #3a2e1a;
-    --accent:        #fbbf24;
     --on-primary:    #1c1917;  /* DARK text on the bright amber button */
 
     --bg:            #1a1714;
@@ -102,8 +105,8 @@ body {
   margin-bottom: var(--space-4);
 }
 .app-mark { display: inline-flex; flex: none; }
-.app-mark .mark-back  { fill: var(--accent);  opacity: 0.45; }
-.app-mark .mark-front { fill: var(--primary); }
+.app-mark .mark-tile  { fill: var(--mark-tile); }
+.app-mark .mark-frame { fill: none; stroke: var(--mark-ink); stroke-width: 2; }
 .app-title {
   margin: 0;
   font-size: 17px;
