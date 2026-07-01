@@ -21,7 +21,6 @@ window with one click. All data stays on your machine in `chrome.storage.local`
   button.
 - **Rename** a session inline with the pencil icon.
 - **Search** your sessions with a filter box that appears once you have 5+.
-- **Export / Import** all sessions as a JSON file for backup and transfer.
 - **Delete** any session with the ✕ button (inline "are you sure?" confirmation;
   only one card can be confirming at a time).
 - **Light & dark mode** — follows your system theme automatically.
@@ -63,17 +62,15 @@ If you edit any file later, return to `chrome://extensions` and click the
 5. Click a session card to **expand** it and see every tab's title; click a
    title to open just that tab, or **Restore** to open them all in a new window.
 6. Use **Update** to refresh a session's tabs, the **pencil** to rename, and the
-   ✕ (then **Delete**) to remove one. **Export/Import** (bottom of the popup)
-   save and restore all sessions as a JSON backup file.
+   ✕ (then **Delete**) to remove one.
 
 ## Notes & limitations
 
 - **Permissions:** `tabs` (to read tab titles/URLs), `storage` (to save sessions
   locally), and `favicon` (to show tab icons via Chrome's built-in favicon
-  service). Nothing is sent anywhere. Opening individual tabs, Update, and
-  Export/Import add **no** new permissions — `chrome.tabs.create` only needs
-  reading permission (already granted), and export downloads a JSON file with a
-  plain in-memory blob link that any web page can create.
+  service). Nothing is sent anywhere. Opening individual tabs and Update add
+  **no** new permissions — `chrome.tabs.create` only needs reading permission
+  (already granted).
 - **Favicons:** these come from Chrome's own cache at
   `chrome-extension://<id>/_favicon/?pageUrl=…&size=32` (enabled by the `favicon`
   permission). Pages Chrome hasn't cached an icon for show a neutral globe.

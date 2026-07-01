@@ -25,9 +25,6 @@ const noMatchesEl  = document.getElementById("no-matches");
 const saveBtnLabel = document.getElementById("save-btn-label");
 const searchWrap   = document.getElementById("search-wrap");
 const searchInput  = document.getElementById("search");
-const exportBtn    = document.getElementById("export-btn");
-const importBtn    = document.getElementById("import-btn");
-const importInput  = document.getElementById("import-input");
 
 // --- Shared UI state -------------------------------------------------------
 // At most ONE card may show its "Are you sure?" row at a time. We keep the
@@ -161,98 +158,6 @@ async function deleteSession(id) {
 }
 
 // ===========================================================================
-// Export / Import (FEATURE 6)
-// ===========================================================================
-
-async function exportSessions() {
-  const sessions = await getSessions();
-  if (sessions.length === 0) {
-    showStatus("No sessions to export.", true);
-    return;
-  }
-
-  // Turn the array into nicely-indented JSON text.
-  const json = JSON.stringify(sessions, null, 2);
-
-  // A Blob is an in-memory "file". URL.createObjectURL gives us a temporary
-  // URL pointing at it. We then programmatically click a hidden <a download>
-  // to save it. This is a plain-web technique — NO "downloads" permission
-  // needed — so the manifest is unchanged.
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `tab-snapshot-backup-${dateStamp()}.json`;
-  a.click();
-  URL.revokeObjectURL(url); // release the temporary URL
-
-  showStatus(`Exported ${sessions.length} session${sessions.length === 1 ? "" : "s"}.`);
-}
-
-async function handleImportFile(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  try {
-    // file.text() reads the chosen file as a string (returns a Promise).
-    const text = await file.text();
-    const data = JSON.parse(text); // throws if the file isn't valid JSON
-    if (!Array.isArray(data)) throw new Error("Top level is not an array");
-
-    // Keep only well-formed entries, and normalize each to our shape.
-    const incoming = data.filter(isValidSession).map(normalizeSession);
-
-    const existing = await getSessions();
-    const existingIds = new Set(existing.map((s) => s.id));
-
-    let added = 0;
-    let skipped = 0;
-    for (const session of incoming) {
-      if (existingIds.has(session.id)) {
-        skipped++; // already have this exact session → skip (re-import is safe)
-        continue;
-      }
-      existing.push(session);
-      existingIds.add(session.id);
-      added++;
-    }
-
-    await saveSessions(existing);
-    await render();
-    showStatus(
-      `Imported ${added} session${added === 1 ? "" : "s"}` +
-        (skipped ? `, skipped ${skipped} duplicate${skipped === 1 ? "" : "s"}` : "") +
-        "."
-    );
-  } catch (err) {
-    showStatus("Import failed: that file isn't valid Tab Snapshot JSON.", true);
-    console.error("import failed:", err);
-  } finally {
-    // Reset the file input so picking the SAME file again still fires "change".
-    event.target.value = "";
-  }
-}
-
-// A minimal shape check for imported data.
-function isValidSession(o) {
-  return o && typeof o === "object" &&
-         typeof o.name === "string" &&
-         Array.isArray(o.tabs);
-}
-
-// Coerce an imported entry into exactly the shape we rely on, filling gaps.
-function normalizeSession(o) {
-  return {
-    id: typeof o.id === "string" ? o.id : crypto.randomUUID(),
-    name: o.name,
-    createdAt: Number.isFinite(o.createdAt) ? o.createdAt : Date.now(),
-    tabs: o.tabs
-      .filter((t) => t && typeof t.url === "string")
-      .map((t) => ({ title: typeof t.title === "string" ? t.title : t.url, url: t.url })),
-  };
-}
-
-// ===========================================================================
 // Rendering
 // ===========================================================================
 
@@ -284,9 +189,6 @@ async function render() {
   // Two different "empty" messages:
   emptyStateEl.hidden = all.length !== 0;                       // no sessions at all
   noMatchesEl.hidden = !(all.length > 0 && visible.length === 0); // filtered to nothing
-
-  // Nothing to export when there are no sessions.
-  exportBtn.disabled = all.length === 0;
 }
 
 // Does this session match the search query? Checks the name and every tab.
@@ -629,13 +531,6 @@ function autoName() {
   return `Session · ${stamp}`;
 }
 
-// "2026-07-01" for the export filename.
-function dateStamp() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-}
-
 // Friendly "time ago"; falls back to an absolute date after a week.
 function relativeTime(timestamp) {
   const seconds = Math.round((Date.now() - timestamp) / 1000);
@@ -684,11 +579,6 @@ document.addEventListener("DOMContentLoaded", () => {
     searchQuery = searchInput.value;
     render();
   });
-
-  // Export / Import.
-  exportBtn.addEventListener("click", exportSessions);
-  importBtn.addEventListener("click", () => importInput.click()); // open picker
-  importInput.addEventListener("change", handleImportFile);
 
   updateSaveButtonCount();
   render();

@@ -76,28 +76,6 @@
       </div>
     </section>
 
-    <!-- Backup tools. Export/Import need NO extra permission (see popup.js). -->
-    <footer class="app-footer">
-      <button id="export-btn" class="btn-ghost" type="button">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 21h14" />
-        </svg>
-        Export
-      </button>
-      <button id="import-btn" class="btn-ghost" type="button">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 15V3" /><path d="M7 8l5-5 5 5" /><path d="M5 21h14" />
-        </svg>
-        Import
-      </button>
-      <!-- Hidden file input; the Import button clicks it to open the picker. -->
-      <input id="import-input" type="file" accept="application/json" hidden />
-    </footer>
-
     <script src="popup.js"></script>
   </body>
 </html>
