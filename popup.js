@@ -26,6 +26,10 @@ const saveBtnLabel = document.getElementById("save-btn-label");
 const searchWrap   = document.getElementById("search-wrap");
 const searchInput  = document.getElementById("search");
 const supportBtn   = document.getElementById("support-btn");
+const nudgeEl         = document.getElementById("nudge");
+const nudgeTextEl     = document.getElementById("nudge-text");
+const nudgeSupportBtn = document.getElementById("nudge-support");
+const nudgeCloseBtn   = document.getElementById("nudge-close");
 
 // --- Shared UI state -------------------------------------------------------
 // At most ONE card may show its "Are you sure?" row at a time. We keep the
@@ -128,6 +132,11 @@ async function renameSession(id, newName) {
 
 async function reopenSession(session) {
   const urls = session.tabs.map((tab) => tab.url);
+
+  // Record the restore BEFORE opening the window: once the new window takes
+  // focus this popup closes, and any code after that point may never run.
+  await recordRestore(session.tabs.length);
+
   try {
     // Opens a NEW window, one tab per URL. chrome.windows.create needs no
     // permission entry in the manifest.
@@ -156,6 +165,73 @@ async function deleteSession(id) {
   const sessions = await getSessions();
   await saveSessions(sessions.filter((session) => session.id !== id));
   await render();
+}
+
+// ===========================================================================
+// Support nudge — a "value moment" thank-you shown after restores
+// ===========================================================================
+//
+// The popup CLOSES the instant a restored window takes focus, so we can't
+// show anything at restore time. Instead each restore records a "pending
+// nudge" in storage, and the NEXT popup open decides whether to show it.
+//
+// Anti-nag rules (in order — the first match wins and we stay silent):
+//   1. The user dismissed it twice           → never show again.
+//   2. Fewer than 4 lifetime restores        → too early, stay quiet.
+//   3. Shown less than 14 days ago           → still in cooldown.
+//   4. No restore happened since last check  → nothing to thank for.
+
+const NUDGE_KEY = "supportNudge";
+const NUDGE_FREE_RESTORES = 3;                        // first 3 are nudge-free
+const NUDGE_COOLDOWN_MS   = 14 * 24 * 60 * 60 * 1000; // 14 days
+const NUDGE_MAX_DISMISSALS = 2;                       // two ✕ = never again
+
+// Read the nudge state, falling back to a fresh zeroed record on first run.
+async function getNudgeState() {
+  const data = await chrome.storage.local.get(NUDGE_KEY);
+  return data[NUDGE_KEY] || {
+    restoreCount: 0,    // lifetime restores
+    lastShownAt: 0,     // epoch ms of the last time the banner was shown
+    dismissCount: 0,    // how many times the user clicked ✕
+    pendingTabCount: 0, // tab count of the last restore; 0 = nothing pending
+  };
+}
+
+async function saveNudgeState(state) {
+  await chrome.storage.local.set({ [NUDGE_KEY]: state });
+}
+
+// Called by reopenSession BEFORE the window opens (after it, the popup may
+// already be gone). Remembers the restore for the next popup open.
+async function recordRestore(tabCount) {
+  const state = await getNudgeState();
+  state.restoreCount += 1;
+  state.pendingTabCount = tabCount;
+  await saveNudgeState(state);
+}
+
+// Called once when the popup opens. Applies the anti-nag rules above and,
+// if they all pass, fills in the real tab count and reveals the banner.
+async function maybeShowNudge() {
+  const state = await getNudgeState();
+
+  if (state.dismissCount >= NUDGE_MAX_DISMISSALS) return; // rule 1
+  if (state.restoreCount <= NUDGE_FREE_RESTORES) return;  // rule 2
+  if (Date.now() - state.lastShownAt < NUDGE_COOLDOWN_MS) return; // rule 3
+  if (state.pendingTabCount <= 0) return;                 // rule 4
+
+  nudgeTextEl.textContent =
+    `Tab Snapshot just brought back ${pluralizeTabs(state.pendingTabCount)} ` +
+    `for you. If it saves you time, consider supporting it ♥`;
+  nudgeEl.hidden = false;
+
+  // Mark it shown RIGHT AWAY (not on dismiss): even if the user closes the
+  // popup without touching the banner, that still counts as one showing —
+  // otherwise we'd re-nag on every open until they interact, which is
+  // exactly the pushiness we're trying to avoid.
+  state.lastShownAt = Date.now();
+  state.pendingTabCount = 0;
+  await saveNudgeState(state);
 }
 
 // ===========================================================================
@@ -588,6 +664,23 @@ document.addEventListener("DOMContentLoaded", () => {
     window.close();
   });
 
+  // Nudge banner: ✕ counts as a dismissal (two of those and it's gone for
+  // good — respecting the "no" matters more than squeezing a donation).
+  nudgeCloseBtn.addEventListener("click", async () => {
+    nudgeEl.hidden = true;
+    const state = await getNudgeState();
+    state.dismissCount += 1;
+    await saveNudgeState(state);
+  });
+
+  // The banner's Support button is NOT a dismissal — it opens the support
+  // page just like the header pill does.
+  nudgeSupportBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("support.html") });
+    window.close();
+  });
+
   updateSaveButtonCount();
   render();
+  maybeShowNudge();
 });

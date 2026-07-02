@@ -93,6 +93,15 @@
       </div>
     </section>
 
+    <!-- Value-moment nudge: hidden by default. popup.js shows it (at most
+         once per 14 days, never after 2 dismissals) on the popup open that
+         follows a session restore. -->
+    <div id="nudge" class="nudge" hidden>
+      <p id="nudge-text" class="nudge-text"></p>
+      <button id="nudge-support" class="nudge-support" type="button">Support ♥</button>
+      <button id="nudge-close" class="nudge-close" type="button" title="Dismiss" aria-label="Dismiss">✕</button>
+    </div>
+
     <script src="popup.js"></script>
   </body>
 </html>
