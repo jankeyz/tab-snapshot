@@ -1,0 +1,197 @@
+/* support.css — Tab Snapshot's support page.
+   The design tokens below are COPIED from popup.css so both share the same
+   Slate & Amber identity in light and dark mode. We don't link popup.css
+   because it hardcodes popup-only layout (body { width: 360px } etc.). */
+
+/* ============================ Design tokens ============================== */
+/* (Copied from popup.css — keep in sync if the identity is ever retuned.) */
+:root {
+  --primary:       #b45309;
+  --primary-hover: #92400e;
+  --primary-soft:  #fdf0e1;
+  --on-primary:    #ffffff;
+
+  --mark-tile: #f59e0b;
+  --mark-ink:  #1c1917;
+
+  --bg:            #ffffff;
+  --card:          #ffffff;
+  --card-hover:    #faf8f4;
+  --panel:         #f8f7f4;
+  --border:        #e7e5e0;
+  --border-strong: #d6d3cc;
+
+  --text:  #1c1917;
+  --muted: #78716c;
+
+  --danger:       #dc2626;
+  --danger-hover: #b91c1c;
+  --danger-soft:  #fef2f2;
+  --on-danger:    #ffffff;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --radius:    10px;
+  --radius-sm: 7px;
+  --shadow: 0 1px 2px rgba(17, 12, 46, 0.06),
+            0 6px 16px rgba(17, 12, 46, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary:       #f59e0b;
+    --primary-hover: #fbbf24;
+    --primary-soft:  #3a2e1a;
+    --on-primary:    #1c1917;
+
+    --bg:            #1a1714;
+    --card:          #231f1a;
+    --card-hover:    #2b2620;
+    --panel:         #231f1a;
+    --border:        #38332b;
+    --border-strong: #4a4339;
+
+    --text:  #f5f2ec;
+    --muted: #a89f93;
+
+    --danger:       #f87171;
+    --danger-hover: #fca5a5;
+    --danger-soft:  #2a1c1a;
+    --on-danger:    #1c1917;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.45),
+              0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* ================================ Base ================================== */
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Centered single column. */
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-6);
+}
+
+/* =============================== Header ================================= */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.app-mark { display: inline-flex; flex: none; }
+.app-mark .mark-tile  { fill: var(--mark-tile); }
+.app-mark .mark-frame { fill: none; stroke: var(--mark-ink); stroke-width: 2; }
+.page-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ================================ Intro ================================= */
+.intro-heading { margin: 0 0 var(--space-3); font-size: 19px; }
+.intro p { margin: 0 0 var(--space-3); }
+
+/* ============================ Tier sections ============================= */
+.tier-section { margin-top: var(--space-6); }
+.section-heading { margin: 0; font-size: 17px; }
+.section-sub { margin: var(--space-1) 0 var(--space-4); color: var(--muted); font-size: 13px; }
+
+/* Three equal columns; the highlighted middle tier stacks its label below. */
+.tier-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+@media (max-width: 480px) {
+  .tier-row { grid-template-columns: 1fr; }
+}
+
+.tier-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease,
+              box-shadow 0.12s ease;
+}
+.tier-btn:hover {
+  border-color: var(--primary);
+  background: var(--card-hover);
+  box-shadow: var(--shadow);
+}
+.tier-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.tier-emoji { font-size: 18px; }
+
+/* Highlighted middle monthly tier + its "Popular option" label. */
+.tier-popular {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.tier-btn.is-popular {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.popular-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* ====================== "Link not set up" notice ======================== */
+.notice {
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* =============================== Footer ================================= */
+.page-footer {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+.page-footer p { margin: 0; }

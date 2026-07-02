@@ -24,6 +24,9 @@ window with one click. All data stays on your machine in `chrome.storage.local`
 - **Delete** any session with the ✕ button (inline "are you sure?" confirmation;
   only one card can be confirming at a time).
 - **Light & dark mode** — follows your system theme automatically.
+- **Support the project** — a small heart icon in the header opens a bundled
+  pay-what-you-like support page. No tracking, no nagging, and not paying is
+  completely fine.
 
 ## Folder contents
 
@@ -33,6 +36,9 @@ tab-snapshot/
 ├── popup.html        # The popup's structure
 ├── popup.css         # The popup's styling (~360px wide)
 ├── popup.js          # All logic: capture, save, list, reopen, delete
+├── support.html      # Pay-what-you-like support page (opened from the ♥ icon)
+├── support.css       # Support page styling (same identity as the popup)
+├── support.js        # Support page logic: tier buttons → payment links
 ├── icons/
 │   ├── icon16.png    # Toolbar icon
 │   ├── icon48.png    # Extensions page icon

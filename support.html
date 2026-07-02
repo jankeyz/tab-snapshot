@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support Tab Snapshot</title>
+    <link rel="stylesheet" href="support.css" />
+  </head>
+  <body>
+    <main class="page">
+      <!-- Same brand mark as the popup header (see popup.html) so the support
+           page is instantly recognizable as part of the extension. -->
+      <header class="page-header">
+        <span class="app-mark" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="28" height="28">
+            <rect class="mark-tile" width="16" height="16" rx="4" />
+            <rect class="mark-frame" x="5" y="5" width="6" height="6" rx="1.5" />
+          </svg>
+        </span>
+        <h1 class="page-title">Tab Snapshot</h1>
+      </header>
+
+      <!-- Intro: free forever, pay-what-you-like, and it's fine not to pay. -->
+      <section class="intro">
+        <h2 class="intro-heading">Thanks for using Tab Snapshot! 👋</h2>
+        <p>
+          Tab Snapshot is <strong>free, forever</strong> — every feature, for
+          everyone. There's no locked "pro" version and there never will be.
+        </p>
+        <p>
+          If it saves you time and you'd like to give something back, you can
+          chip in whatever feels right. It keeps the project alive and puts a
+          big smile on my face.
+        </p>
+        <p>
+          And if you'd rather not? <strong>That's completely fine.</strong>
+          Enjoy the extension — that's what it's for. 🙂
+        </p>
+      </section>
+
+      <!-- One-time tiers. data-tier matches a key in PAYMENT_LINKS (support.js). -->
+      <section class="tier-section">
+        <h2 class="section-heading">One-time payment</h2>
+        <p class="section-sub">A single "thanks!" — no strings attached.</p>
+        <div class="tier-row">
+          <button class="tier-btn" type="button" data-tier="once5">
+            <span class="tier-emoji" aria-hidden="true">😊</span> $5
+          </button>
+          <button class="tier-btn" type="button" data-tier="once10">
+            <span class="tier-emoji" aria-hidden="true">🚀</span> $10
+          </button>
+          <button class="tier-btn" type="button" data-tier="once25">
+            <span class="tier-emoji" aria-hidden="true">❤️</span> $25
+          </button>
+        </div>
+      </section>
+
+      <!-- Monthly tiers. The middle one is highlighted as the popular pick. -->
+      <section class="tier-section">
+        <h2 class="section-heading">Monthly support</h2>
+        <p class="section-sub">
+          Steady support for steady improvements — cancel anytime.
+        </p>
+        <div class="tier-row">
+          <button class="tier-btn" type="button" data-tier="monthly5">
+            <span class="tier-emoji" aria-hidden="true">⭐</span> $5/month
+          </button>
+          <div class="tier-popular">
+            <button class="tier-btn is-popular" type="button" data-tier="monthly10">
+              <span class="tier-emoji" aria-hidden="true">🌟</span> $10/month
+            </button>
+            <span class="popular-label">Popular option</span>
+          </div>
+          <button class="tier-btn" type="button" data-tier="monthly20">
+            <span class="tier-emoji" aria-hidden="true">💎</span> $20/month
+          </button>
+        </div>
+      </section>
+
+      <!-- Inline notice shown by support.js when a link isn't configured yet.
+           aria-live makes screen readers announce it when it appears. -->
+      <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+
+      <footer class="page-footer">
+        <p>
+          Tab Snapshot is <strong>ad-free and tracking-free</strong> — that's
+          how it should be.
+        </p>
+      </footer>
+    </main>
+
+    <script src="support.js"></script>
+  </body>
+</html>

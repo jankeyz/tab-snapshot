@@ -1,0 +1,118 @@
+# Donate Link Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Add a small footer link in the Tab Snapshot popup that opens the developer's Ko-fi donation page in a new tab.
+
+**Architecture:** This is a static HTML/CSS/vanilla-JS Chrome extension (Manifest V3) with no build step, no test framework, and no background service worker — everything lives in `popup.html`/`popup.css`/`popup.js` and runs while the popup is open. This change follows the same pattern already used for opening tabs (`chrome.tabs.create`), needs no manifest changes, and adds no new permissions.
+
+**Tech Stack:** Vanilla HTML/CSS/JS, Chrome Extension Manifest V3 APIs (`chrome.tabs`).
+
+## Global Constraints
+
+- Ko-fi URL is exactly `https://ko-fi.com/janko765` (from spec).
+- Link label is exactly "☕ Support this extension" (from spec).
+- No new manifest permissions (from spec — `tabs` already covers `chrome.tabs.create`).
+- No click tracking/analytics, no banners, no repeated nudges (from spec).
+- Clicking the link must close the popup, consistent with existing tab-opening behavior in `popup.js`.
+- This codebase has no test runner or `package.json` (verified: only `manifest.json`, `popup.html/css/js`, `icons/`, `README.md` exist). Verification for this plan is manual, via Chrome's "Load unpacked" developer mode — there is no automated test suite to add tests to, and introducing one is out of scope for a single-link feature.
+
+---
+
+### Task 1: Add the donate footer link
+
+**Files:**
+- Modify: `popup.html` (add footer markup after the closing `</section>` of `.sessions`, before `<script src="popup.js">`, i.e. after line 79)
+- Modify: `popup.css` (add a `.support-footer` / `.support-link` rule block at the end of the file, after `.no-matches`, i.e. after line 459)
+- Modify: `popup.js` (wire the click handler in the `DOMContentLoaded` listener at the end of the file)
+- Modify: `README.md` (one-line mention under Features)
+
+**Interfaces:**
+- Consumes: existing `chrome.tabs.create` pattern already used in `openSingleTab()` (popup.js:141-152) — no new helper functions needed, this is a single inline handler.
+- Produces: nothing consumed by other tasks — this is the only task in the plan.
+
+- [ ] **Step 1: Add the footer markup to `popup.html`**
+
+Insert this block immediately after the closing `</section>` tag (currently line 79) and before the `<script src="popup.js"></script>` tag:
+
+```html
+    <footer class="support-footer">
+      <a id="support-link" class="support-link" href="https://ko-fi.com/janko765">☕ Support this extension</a>
+    </footer>
+```
+
+The `href` is a real Ko-fi URL, so the link still works (e.g. via right-click "open in new tab") even before `popup.js` attaches its handler — `popup.js` will additionally intercept the click to open it via `chrome.tabs.create` and close the popup.
+
+- [ ] **Step 2: Add footer styling to `popup.css`**
+
+Append this block at the end of the file (after the existing `.no-matches` rule):
+
+```css
+/* ============================= Support footer =========================== */
+.support-footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.support-link {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.support-link:hover { color: var(--primary); text-decoration: underline; }
+.support-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+```
+
+- [ ] **Step 3: Wire the click handler in `popup.js`**
+
+In the `DOMContentLoaded` listener at the end of the file (currently lines 573-585), add an element reference near the top of the file alongside the other element lookups (after line 27, `const searchInput = document.getElementById("search");`):
+
+```js
+const supportLink  = document.getElementById("support-link");
+```
+
+Then inside the `DOMContentLoaded` callback, add this handler (alongside the existing `form.addEventListener` and `searchInput.addEventListener` calls):
+
+```js
+  supportLink.addEventListener("click", (event) => {
+    event.preventDefault(); // we open it ourselves via chrome.tabs.create
+    chrome.tabs.create({ url: supportLink.href });
+    window.close();
+  });
+```
+
+- [ ] **Step 4: Add a one-line mention to `README.md` Features list**
+
+In the `## Features` section (starts at line 8), add a new bullet after the "Light & dark mode" bullet (currently ending at line 26):
+
+```markdown
+- **Support the project** — a "☕ Support this extension" link in the footer
+  opens the developer's Ko-fi page in a new tab. No tracking, no nagging.
+```
+
+- [ ] **Step 5: Manually verify in Chrome**
+
+There is no automated test suite in this project (see Global Constraints), so verification is manual:
+
+1. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select the `tab-snapshot-main` folder (or click the reload icon if already loaded).
+2. Click the Tab Snapshot toolbar icon to open the popup.
+3. Confirm the "☕ Support this extension" link appears at the bottom of the popup, below the session list, styled as small muted text with a top border separating it from the content above.
+4. Toggle OS dark mode and reopen the popup; confirm the link is still legible (muted text color) and the amber hover color still works.
+5. Click the link. Confirm: a new browser tab opens to `https://ko-fi.com/janko765`, and the extension popup closes.
+6. Tab/keyboard-focus into the popup and confirm the link shows a visible focus ring and activates on Enter.
+
+Expected: all six checks pass with no console errors in the popup's DevTools (right-click popup → Inspect).
+
+- [ ] **Step 6: Commit**
+
+This project has no `.git` repository initialized yet, so this step is skipped. If a repository is initialized later, commit `popup.html`, `popup.css`, `popup.js`, and `README.md` together with a message like:
+
+```
+git add popup.html popup.css popup.js README.md
+git commit -m "feat: add Ko-fi donate link to popup footer"
+```

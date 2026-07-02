@@ -25,6 +25,7 @@ const noMatchesEl  = document.getElementById("no-matches");
 const saveBtnLabel = document.getElementById("save-btn-label");
 const searchWrap   = document.getElementById("search-wrap");
 const searchInput  = document.getElementById("search");
+const supportBtn   = document.getElementById("support-btn");
 
 // --- Shared UI state -------------------------------------------------------
 // At most ONE card may show its "Are you sure?" row at a time. We keep the
@@ -578,6 +579,13 @@ document.addEventListener("DOMContentLoaded", () => {
   searchInput.addEventListener("input", () => {
     searchQuery = searchInput.value;
     render();
+  });
+
+  // Open the bundled support page in a new tab. chrome.runtime.getURL turns
+  // the relative path into our full chrome-extension://<id>/support.html URL.
+  supportBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("support.html") });
+    window.close();
   });
 
   updateSaveButtonCount();
