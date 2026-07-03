@@ -20,21 +20,41 @@
         <h1 class="page-title">Tab Snapshot</h1>
       </header>
 
-      <!-- Intro: free forever, pay-what-you-like, and it's fine not to pay. -->
+      <!-- Intro: a personal note from the developer. Core stays free;
+           supporters unlock Auto-Snapshot as a thank-you (next section). -->
       <section class="intro">
-        <h2 class="intro-heading">Thanks for using Tab Snapshot! 👋</h2>
+        <h2 class="intro-heading">Hey, thanks for stopping by 👋</h2>
         <p>
-          Tab Snapshot is <strong>free, forever</strong> — every feature, for
-          everyone. There's no locked "pro" version and there never will be.
+          I'm the one person behind Tab Snapshot. I built it after one Chrome
+          crash too many took a whole evening of research down with it, and I
+          sat there staring at an empty window thinking: never again. I
+          figured I wasn't the only one this kept happening to.
         </p>
         <p>
-          If it saves you time and you'd like to give something back, you can
-          chip in whatever feels right. It keeps the project alive and puts a
-          big smile on my face.
+          Everything you're using right now <strong>stays free</strong>. No
+          ads, no tracking, no "your trial has ended". That part doesn't
+          change.
         </p>
         <p>
-          And if you'd rather not? <strong>That's completely fine.</strong>
-          Enjoy the extension — that's what it's for. 🙂
+          But this is a nights-and-weekends project, and if it has ever saved
+          your tabs (or your sanity), you can chip in below. Every single
+          supporter genuinely makes my week.
+        </p>
+      </section>
+
+      <!-- Supporter perk: what you actually get for supporting. -->
+      <section class="perk-section">
+        <h2 class="section-heading">Supporters get something real: Auto-Snapshot 🛟</h2>
+        <p>
+          As a thank-you, supporters unlock <strong>Auto-Snapshot</strong>:
+          the extension quietly backs up your open tabs every 5 minutes, all
+          by itself. Browser crash? Accidental "close window"? Laptop died
+          mid-everything? Your tabs are already saved — you never have to
+          remember to click anything.
+        </p>
+        <p class="perk-note">
+          After you support, you'll get a supporter code from me on Ko-fi.
+          Pop it in below and you're set.
         </p>
       </section>
 
@@ -57,7 +77,32 @@
         </div>
       </section>
 
-      <!-- Inline notice shown by support.js when a link isn't configured yet.
+      <!-- Unlock: supporters paste the code they received on Ko-fi.
+           support.js checks it and flips the supporterUnlock storage flag. -->
+      <section class="unlock-section">
+        <h2 class="section-heading">Already a supporter?</h2>
+        <div id="unlock-form-wrap">
+          <form id="unlock-form" class="unlock-form" autocomplete="off">
+            <input
+              id="unlock-code"
+              class="unlock-input"
+              type="text"
+              placeholder="Paste your supporter code"
+              maxlength="40"
+              aria-label="Supporter code"
+            />
+            <button class="tier-btn unlock-btn" type="submit">Unlock</button>
+          </form>
+        </div>
+        <div id="unlock-done" class="unlock-done" hidden>
+          <p>
+            You're in — thank you so much. ❤️ Auto-Snapshot is now quietly
+            watching your tabs.
+          </p>
+        </div>
+      </section>
+
+      <!-- Inline notice used for short messages (e.g. a wrong unlock code).
            aria-live makes screen readers announce it when it appears. -->
       <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
 
