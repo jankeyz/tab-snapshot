@@ -133,6 +133,9 @@ body {
 }
 .support-btn:hover { background: var(--primary); color: var(--on-primary); }
 .support-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+/* Filled-in state once the user has unlocked the supporter perk. */
+.support-btn.is-supporter { background: var(--primary); color: var(--on-primary); }
+.support-btn.is-supporter:hover { background: var(--primary-hover); }
 
 /* ============================== Save form =============================== */
 .save-form { display: flex; gap: var(--space-2); }
@@ -477,6 +480,45 @@ body {
   font-size: 13px;
   color: var(--muted);
 }
+
+/* ==================== Auto-snapshots (supporter perk) =================== */
+/* Name + "Auto" badge share one flex row inside the card. */
+.session-name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.session-name-row .session-name { flex: 1; min-width: 0; }
+.auto-badge {
+  flex: none;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+/* One-line note under the heading: the non-supporter teaser, or the
+   "first snapshot within 5 minutes" note right after unlocking. */
+.auto-note {
+  margin: 0 0 var(--space-2);
+  font-size: 12px;
+  color: var(--muted);
+}
+.auto-learn-more {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--primary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.auto-learn-more:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
 
 /* ========================= Value-moment nudge =========================== */
 /* A quiet thank-you card at the bottom of the popup. Deliberately calm:

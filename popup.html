@@ -30,7 +30,7 @@
              stroke-linejoin="round" aria-hidden="true">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
-        Support
+        <span id="support-btn-label">Support</span>
       </button>
     </header>
 
@@ -91,6 +91,15 @@
         <p class="empty-title">No sessions yet</p>
         <p class="empty-sub">Save your first one above.</p>
       </div>
+    </section>
+
+    <!-- Auto-Snapshot (supporter perk): background.js keeps a rolling buffer
+         of automatic snapshots. popup.js fills the list for supporters and
+         shows a one-line teaser (with a Learn more link) for everyone else. -->
+    <section id="auto-section" class="sessions" hidden>
+      <h2 class="sessions-heading">Auto-snapshots</h2>
+      <p id="auto-note" class="auto-note" hidden></p>
+      <ul id="auto-list" class="session-list"></ul>
     </section>
 
     <!-- Value-moment nudge: hidden by default. popup.js shows it (at most

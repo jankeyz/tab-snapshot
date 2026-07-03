@@ -25,8 +25,13 @@ window with one click. All data stays on your machine in `chrome.storage.local`
   only one card can be confirming at a time).
 - **Light & dark mode** — follows your system theme automatically.
 - **Support the project** — a small heart icon in the header opens a bundled
-  pay-what-you-like support page. No tracking, no nagging, and not paying is
-  completely fine.
+  support page with Ko-fi links (one-time or monthly, you pick the amount).
+  No tracking, no nagging, and not paying is completely fine.
+- **Auto-Snapshot (supporter perk)** — supporters receive a code on Ko-fi that
+  unlocks automatic background snapshots: every 5 minutes the extension saves
+  all open tabs into a rolling buffer of the last 5 snapshots, so a crash or
+  an accidental "close window" never loses your tabs. Everything else stays
+  free for everyone.
 
 ## Folder contents
 
@@ -35,10 +40,11 @@ tab-snapshot/
 ├── manifest.json     # Extension metadata, permissions, popup + icon wiring
 ├── popup.html        # The popup's structure
 ├── popup.css         # The popup's styling (~360px wide)
-├── popup.js          # All logic: capture, save, list, reopen, delete
-├── support.html      # Pay-what-you-like support page (opened from the ♥ icon)
+├── popup.js          # All popup logic: capture, save, list, reopen, delete
+├── background.js     # Service worker: Auto-Snapshot alarm (supporter perk)
+├── support.html      # Support page (opened from the ♥ icon)
 ├── support.css       # Support page styling (same identity as the popup)
-├── support.js        # Support page logic: tier buttons → payment links
+├── support.js        # Support page logic: Ko-fi buttons + supporter unlock
 ├── icons/
 │   ├── icon16.png    # Toolbar icon
 │   ├── icon48.png    # Extensions page icon
@@ -73,10 +79,10 @@ If you edit any file later, return to `chrome://extensions` and click the
 ## Notes & limitations
 
 - **Permissions:** `tabs` (to read tab titles/URLs), `storage` (to save sessions
-  locally), and `favicon` (to show tab icons via Chrome's built-in favicon
-  service). Nothing is sent anywhere. Opening individual tabs and Update add
-  **no** new permissions — `chrome.tabs.create` only needs reading permission
-  (already granted).
+  locally), `favicon` (to show tab icons via Chrome's built-in favicon
+  service), and `alarms` (the Auto-Snapshot timer). Nothing is sent anywhere.
+  Opening individual tabs and Update add **no** new permissions —
+  `chrome.tabs.create` only needs reading permission (already granted).
 - **Favicons:** these come from Chrome's own cache at
   `chrome-extension://<id>/_favicon/?pageUrl=…&size=32` (enabled by the `favicon`
   permission). Pages Chrome hasn't cached an icon for show a neutral globe.
@@ -91,8 +97,8 @@ If you edit any file later, return to `chrome://extensions` and click the
 
 ## How the pieces fit together
 
-The popup is the entire app — there is no background service worker, because all
-work happens while the popup is open:
+The popup is the app; the only background code is the small Auto-Snapshot
+service worker (`background.js`), which sleeps until its alarm fires:
 
 - Opening the popup reads `chrome.storage.local` and renders the session list.
 - **Save** calls `chrome.tabs.query({ currentWindow: true })`, keeps each tab's

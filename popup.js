@@ -25,7 +25,11 @@ const noMatchesEl  = document.getElementById("no-matches");
 const saveBtnLabel = document.getElementById("save-btn-label");
 const searchWrap   = document.getElementById("search-wrap");
 const searchInput  = document.getElementById("search");
-const supportBtn   = document.getElementById("support-btn");
+const supportBtn      = document.getElementById("support-btn");
+const supportBtnLabel = document.getElementById("support-btn-label");
+const autoSection     = document.getElementById("auto-section");
+const autoNote        = document.getElementById("auto-note");
+const autoList        = document.getElementById("auto-list");
 const nudgeEl         = document.getElementById("nudge");
 const nudgeTextEl     = document.getElementById("nudge-text");
 const nudgeSupportBtn = document.getElementById("nudge-support");
@@ -54,6 +58,28 @@ async function getSessions() {
 
 async function saveSessions(sessions) {
   await chrome.storage.local.set({ [STORAGE_KEY]: sessions });
+}
+
+// --- Supporter perk: Auto-Snapshot ----------------------------------------
+// background.js writes a rolling buffer of automatic snapshots under this
+// key while the supporterUnlock flag (set on the support page) is present.
+// The popup only reads/renders them — plus delete, the one edit that makes
+// sense for machine-written history.
+const AUTO_KEY   = "autoSnapshots";
+const UNLOCK_KEY = "supporterUnlock";
+
+async function getAutoSnapshots() {
+  const data = await chrome.storage.local.get(AUTO_KEY);
+  return data[AUTO_KEY] || [];
+}
+
+async function saveAutoSnapshots(snapshots) {
+  await chrome.storage.local.set({ [AUTO_KEY]: snapshots });
+}
+
+async function isSupporter() {
+  const data = await chrome.storage.local.get(UNLOCK_KEY);
+  return Boolean(data[UNLOCK_KEY] && data[UNLOCK_KEY].unlocked);
 }
 
 // ===========================================================================
@@ -167,6 +193,12 @@ async function deleteSession(id) {
   await render();
 }
 
+async function deleteAutoSnapshot(id) {
+  const snapshots = await getAutoSnapshots();
+  await saveAutoSnapshots(snapshots.filter((snapshot) => snapshot.id !== id));
+  await render();
+}
+
 // ===========================================================================
 // Support nudge — a "value moment" thank-you shown after restores
 // ===========================================================================
@@ -213,6 +245,9 @@ async function recordRestore(tabCount) {
 // Called once when the popup opens. Applies the anti-nag rules above and,
 // if they all pass, fills in the real tab count and reveals the banner.
 async function maybeShowNudge() {
+  // Supporters already gave — nagging them would be the one unforgivable move.
+  if (await isSupporter()) return;
+
   const state = await getNudgeState();
 
   if (state.dismissCount >= NUDGE_MAX_DISMISSALS) return; // rule 1
@@ -239,7 +274,11 @@ async function maybeShowNudge() {
 // ===========================================================================
 
 async function render() {
-  const all = await getSessions();
+  const [all, autoSnapshots, supporter] = await Promise.all([
+    getSessions(),
+    getAutoSnapshots(),
+    isSupporter(),
+  ]);
 
   // A fresh render rebuilds every card, so nothing is confirming afterward.
   closeActiveConfirm = null;
@@ -266,6 +305,45 @@ async function render() {
   // Two different "empty" messages:
   emptyStateEl.hidden = all.length !== 0;                       // no sessions at all
   noMatchesEl.hidden = !(all.length > 0 && visible.length === 0); // filtered to nothing
+
+  renderAutoSection(autoSnapshots, supporter);
+}
+
+// The Auto-snapshots section below the manual list. Supporters see their
+// rolling buffer (background.js keeps it newest-first); everyone else sees
+// one quiet teaser line — visible but never nagging. The search filter is
+// deliberately NOT applied here: five machine-named entries aren't worth
+// filtering, and keeping search scoped to manual sessions is simpler.
+function renderAutoSection(snapshots, supporter) {
+  autoSection.hidden = false;
+  autoList.replaceChildren();
+  autoNote.replaceChildren();
+  autoNote.hidden = true;
+
+  if (!supporter) {
+    autoNote.hidden = false;
+    autoNote.append(
+      "🔒 Supporter perk: auto-saves your open tabs every 5 minutes. "
+    );
+    const learn = document.createElement("button");
+    learn.className = "auto-learn-more";
+    learn.type = "button";
+    learn.textContent = "Learn more";
+    learn.addEventListener("click", openSupportPage);
+    autoNote.appendChild(learn);
+    return;
+  }
+
+  if (snapshots.length === 0) {
+    autoNote.hidden = false;
+    autoNote.textContent =
+      "Auto-Snapshot is on — first snapshot within 5 minutes.";
+    return;
+  }
+
+  for (const snapshot of snapshots) {
+    autoList.appendChild(createSessionItem(snapshot, { auto: true }));
+  }
 }
 
 // Does this session match the search query? Checks the name and every tab.
@@ -280,10 +358,14 @@ function sessionMatches(session, q) {
 
 // Build one <li> for a session.
 //
+// With { auto: true } the card renders an auto-snapshot instead: an "Auto"
+// badge, no rename/update (machine-written history is read-only), and delete
+// routed to the autoSnapshots buffer. Restore/expand/favicons are identical.
+//
 // We build nodes with createElement + textContent for anything derived from web
 // pages (names, tab titles), so a title like "<img onerror=…>" can't run. The
 // only innerHTML uses are fixed SVG strings with no user data.
-function createSessionItem(session) {
+function createSessionItem(session, { auto = false } = {}) {
   const li = document.createElement("li");
   li.className = "session-item is-expandable";
 
@@ -296,6 +378,18 @@ function createSessionItem(session) {
   const nameEl = document.createElement("span");
   nameEl.className = "session-name";
   nameEl.textContent = session.name;
+
+  // Auto-snapshots put the name and a small "Auto" badge on one flex row.
+  let nameNode = nameEl;
+  if (auto) {
+    const row = document.createElement("div");
+    row.className = "session-name-row";
+    const badge = document.createElement("span");
+    badge.className = "auto-badge";
+    badge.textContent = "Auto";
+    row.append(nameEl, badge);
+    nameNode = row;
+  }
 
   const metaEl = document.createElement("span");
   metaEl.className = "session-meta";
@@ -382,7 +476,8 @@ function createSessionItem(session) {
   actions.className = "session-actions";
   const controls = document.createElement("div");
   controls.className = "session-controls";
-  controls.append(renameBtn, updateBtn, restoreBtn);
+  if (auto) controls.append(restoreBtn);
+  else controls.append(renameBtn, updateBtn, restoreBtn);
   actions.append(expandBtn, controls);
 
   // ----- Delete ✕ -----
@@ -393,7 +488,7 @@ function createSessionItem(session) {
   del.title = "Delete this session";
   del.setAttribute("aria-label", `Delete session ${session.name}`);
 
-  content.append(nameEl, metaEl, favicons, actions, listWrap, del);
+  content.append(nameNode, metaEl, favicons, actions, listWrap, del);
 
   // Clicking anywhere on the body (that isn't a button) toggles the card.
   content.addEventListener("click", toggleExpanded);
@@ -449,7 +544,9 @@ function createSessionItem(session) {
 
   const confirmText = document.createElement("span");
   confirmText.className = "confirm-text";
-  confirmText.textContent = "Are you sure you want to delete this session?";
+  confirmText.textContent = auto
+    ? "Are you sure you want to delete this auto-snapshot?"
+    : "Are you sure you want to delete this session?";
 
   const cancelBtn = document.createElement("button");
   cancelBtn.className = "btn btn-sm btn-cancel";
@@ -487,7 +584,9 @@ function createSessionItem(session) {
     closeConfirm();
     del.focus();
   });
-  confirmBtn.addEventListener("click", () => deleteSession(session.id));
+  confirmBtn.addEventListener("click", () =>
+    auto ? deleteAutoSnapshot(session.id) : deleteSession(session.id)
+  );
 
   li.append(content, confirmBar);
   return li;
@@ -633,6 +732,14 @@ function formatDate(timestamp) {
   });
 }
 
+// Open the bundled support page in a new tab. chrome.runtime.getURL turns
+// the relative path into our full chrome-extension://<id>/support.html URL.
+// (The popup closes itself — the new tab has taken focus anyway.)
+function openSupportPage() {
+  chrome.tabs.create({ url: chrome.runtime.getURL("support.html") });
+  window.close();
+}
+
 let statusTimer;
 function showStatus(message, isError = false) {
   statusEl.textContent = message;
@@ -657,11 +764,16 @@ document.addEventListener("DOMContentLoaded", () => {
     render();
   });
 
-  // Open the bundled support page in a new tab. chrome.runtime.getURL turns
-  // the relative path into our full chrome-extension://<id>/support.html URL.
-  supportBtn.addEventListener("click", () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("support.html") });
-    window.close();
+  supportBtn.addEventListener("click", openSupportPage);
+
+  // Supporters get a quiet header thank-you: the pill fills in and reads
+  // "Supporter". It still opens the support page (which shows its own
+  // thank-you state instead of the code form).
+  isSupporter().then((supporter) => {
+    if (!supporter) return;
+    supportBtn.classList.add("is-supporter");
+    supportBtn.title = "Thank you for supporting ♥";
+    supportBtnLabel.textContent = "Supporter";
   });
 
   // Nudge banner: ✕ counts as a dismissal (two of those and it's gone for
@@ -675,10 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // The banner's Support button is NOT a dismissal — it opens the support
   // page just like the header pill does.
-  nudgeSupportBtn.addEventListener("click", () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL("support.html") });
-    window.close();
-  });
+  nudgeSupportBtn.addEventListener("click", openSupportPage);
 
   updateSaveButtonCount();
   render();
