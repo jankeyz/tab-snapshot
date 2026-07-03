@@ -38,41 +38,21 @@
         </p>
       </section>
 
-      <!-- One-time tiers. data-tier matches a key in PAYMENT_LINKS (support.js). -->
+      <!-- Payment buttons. data-tier matches a key in PAYMENT_LINKS (support.js).
+           Both lead to Ko-fi, where the visitor picks the amount or tier. -->
       <section class="tier-section">
-        <h2 class="section-heading">One-time payment</h2>
-        <p class="section-sub">A single "thanks!" — no strings attached.</p>
-        <div class="tier-row">
-          <button class="tier-btn" type="button" data-tier="once5">
-            <span class="tier-emoji" aria-hidden="true">😊</span> $5
-          </button>
-          <button class="tier-btn" type="button" data-tier="once10">
-            <span class="tier-emoji" aria-hidden="true">🚀</span> $10
-          </button>
-          <button class="tier-btn" type="button" data-tier="once25">
-            <span class="tier-emoji" aria-hidden="true">❤️</span> $25
-          </button>
-        </div>
-      </section>
-
-      <!-- Monthly tiers. The middle one is highlighted as the popular pick. -->
-      <section class="tier-section">
-        <h2 class="section-heading">Monthly support</h2>
+        <h2 class="section-heading">Chip in on Ko-fi</h2>
         <p class="section-sub">
-          Steady support for steady improvements — cancel anytime.
+          You pick the amount over on Ko-fi — anything is appreciated.
         </p>
-        <div class="tier-row">
-          <button class="tier-btn" type="button" data-tier="monthly5">
-            <span class="tier-emoji" aria-hidden="true">⭐</span> $5/month
+        <div class="tier-row tier-row--two">
+          <button class="tier-btn" type="button" data-tier="once">
+            <span class="tier-emoji" aria-hidden="true">☕</span>
+            Buy me a coffee (one-time)
           </button>
-          <div class="tier-popular">
-            <button class="tier-btn is-popular" type="button" data-tier="monthly10">
-              <span class="tier-emoji" aria-hidden="true">🌟</span> $10/month
-            </button>
-            <span class="popular-label">Popular option</span>
-          </div>
-          <button class="tier-btn" type="button" data-tier="monthly20">
-            <span class="tier-emoji" aria-hidden="true">💎</span> $20/month
+          <button class="tier-btn is-popular" type="button" data-tier="monthly">
+            <span class="tier-emoji" aria-hidden="true">⭐</span>
+            Support monthly
           </button>
         </div>
       </section>

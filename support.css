@@ -125,8 +125,9 @@ body {
   gap: var(--space-3);
   align-items: start;
 }
+.tier-row--two { grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 480px) {
-  .tier-row { grid-template-columns: 1fr; }
+  .tier-row, .tier-row--two { grid-template-columns: 1fr; }
 }
 
 .tier-btn {
@@ -155,21 +156,10 @@ body {
 .tier-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .tier-emoji { font-size: 18px; }
 
-/* Highlighted middle monthly tier + its "Popular option" label. */
-.tier-popular {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-}
+/* Highlighted (suggested) payment button. */
 .tier-btn.is-popular {
   border-color: var(--primary);
   background: var(--primary-soft);
-  color: var(--primary);
-}
-.popular-label {
-  font-size: 12px;
-  font-weight: 700;
   color: var(--primary);
 }
 
