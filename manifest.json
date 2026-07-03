@@ -1,14 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Tab Snapshot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Save all tabs in the current window as a named session, then restore them in one click.",
 
   "permissions": [
     "tabs",
     "storage",
-    "favicon"
+    "favicon",
+    "alarms"
   ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
 
   "action": {
     "default_popup": "popup.html",
