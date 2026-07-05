@@ -1,11 +1,11 @@
-# Donate Link — Design
+# Tip Link — Design
 
 ## Purpose
 Give users a way to voluntarily support development of Tab Snapshot, without adding
 any backend, accounts, or payment processing to the extension itself.
 
 ## Approach
-Add a small, unobtrusive footer link in the popup that opens a Ko-fi donation page
+Add a small, unobtrusive footer link in the popup that opens a Ko-fi tip page
 (`https://ko-fi.com/janko765`) in a new browser tab.
 
 ## Details
@@ -24,8 +24,8 @@ Add a small, unobtrusive footer link in the popup that opens a Ko-fi donation pa
 
 ## Out of scope
 - In-extension payment processing.
-- Any donation platform other than Ko-fi.
-- Tracking/analytics of donation link clicks.
+- Any tip platform other than Ko-fi.
+- Tracking/analytics of tip link clicks.
 - Dismissible banners or nudges.
 
 ## Docs

@@ -621,5 +621,5 @@ No git repository — skipped. For later:
 
 ```bash
 git add popup.html popup.css popup.js README.md
-git commit -m "feat: replace footer donate link with header heart opening support page"
+git commit -m "feat: replace footer tip link with header heart opening support page"
 ```

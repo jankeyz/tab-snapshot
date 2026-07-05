@@ -7,7 +7,7 @@ modeled on the classic pattern (e.g. Volume Master's support page) but with
 processes no payments itself; tier buttons open external payment links.
 
 ## Supersedes
-The 2026-07-02 donate-link design. Its footer link is **removed** as part of this
+The 2026-07-02 tip-link design. Its footer link is **removed** as part of this
 work (markup in `popup.html`, `.support-footer`/`.support-link` rules in
 `popup.css`, and the `supportLink` element lookup + click handler in `popup.js`).
 

@@ -64,7 +64,7 @@ counts as "shown" and will not re-nag before the cooldown expires.
 
 ### Button semantics
 - **×**: increments `dismissCount`, hides the banner. Respecting the "no"
-  matters more than squeezing a donation.
+  matters more than squeezing a tip.
 - **Support**: opens `support.html` (same handler pattern as the header
   button), hides the banner, does **not** count as a dismissal strike.
 

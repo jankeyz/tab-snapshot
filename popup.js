@@ -777,7 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Nudge banner: ✕ counts as a dismissal (two of those and it's gone for
-  // good — respecting the "no" matters more than squeezing a donation).
+  // good — respecting the "no" matters more than squeezing a tip).
   nudgeCloseBtn.addEventListener("click", async () => {
     nudgeEl.hidden = true;
     const state = await getNudgeState();
